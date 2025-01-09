@@ -24,14 +24,7 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(auth -> auth.anyRequest().authenticated()) // http 통신에 대한 인가 정책을 설정하겠다. (모든 요청)
                 .formLogin(Customizer.withDefaults()) // 인증을 받지 못했을 경우에 formLogin 방식(default)으로 인증을 받는다.
-                .rememberMe(rememberMe -> rememberMe
-                        .alwaysRemember(true)
-                        .tokenValiditySeconds(3600)
-                        .userDetailsService(userDetailsService())
-                        .rememberMeParameter("remember")
-                        .rememberMeCookieName("remember")
-                        .key("security")
-                );
+                ;
         return http.build();
     }
 
