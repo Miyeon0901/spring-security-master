@@ -21,4 +21,9 @@ public class IndexController {
         return "loginPage";
     }
 
+    @GetMapping("logoutSuccess")
+    public String logoutSuccess() {
+        return "logoutSuccess";
+    }
+
 }

@@ -3,16 +3,22 @@ package io.security.springsecuritymaster;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.logout.LogoutHandler;
+import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import java.io.IOException;
 
@@ -22,8 +28,35 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .authorizeHttpRequests(auth -> auth.anyRequest().authenticated()) // http 통신에 대한 인가 정책을 설정하겠다. (모든 요청)
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/logoutSuccess").permitAll()
+                        .anyRequest().authenticated()) // http 통신에 대한 인가 정책을 설정하겠다. (모든 요청)
                 .formLogin(Customizer.withDefaults()) // 인증을 받지 못했을 경우에 formLogin 방식(default)으로 인증을 받는다.
+//                .csrf(csrf -> csrf.disable()) // POST 방식 외도 가능하게 해줌.
+                .logout(logout -> logout
+                        .logoutUrl("/logoutProc")
+                        .logoutRequestMatcher(new AntPathRequestMatcher("/logout", "POST")) // logoutUrl보다 우선시됨.
+                        .logoutSuccessUrl("/logoutSuccess")
+                        .logoutSuccessHandler(new LogoutSuccessHandler() { // logoutSuccessUrl보다 우선시됨.
+                            @Override
+                            public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
+                                response.sendRedirect("/logoutSuccess");
+                            }
+                        })
+                        .deleteCookies("JSESSIONID", "remember-me")
+                        .invalidateHttpSession(true)
+                        .clearAuthentication(true)
+                        .addLogoutHandler(new LogoutHandler() {
+                            @Override
+                            public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
+                                HttpSession session = request.getSession();
+                                session.invalidate();
+                                SecurityContextHolder.getContextHolderStrategy().getContext().setAuthentication(null);
+                                SecurityContextHolder.getContextHolderStrategy().clearContext();
+                            }
+                        })
+                        .permitAll()
+                )
                 ;
         return http.build();
     }
