@@ -30,6 +30,15 @@ public class SecurityConfig {
 
     @Bean
     public UserDetailsService userDetailsService() {
-       return new CustomUserDetailsService();
+        return new CustomUserDetailsService();
     }
+
+    /*@Bean
+    public UserDetailsService userDetailsService() { // 설정 파일(yml)보다 우선시 됨.
+        UserDetails user = User.withUsername("user")
+                .password("{noop}1111")
+                .roles("USER").build();
+        return new InMemoryUserDetailsManager(user);
+
+    }*/
 }
