@@ -22,9 +22,17 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .authorizeHttpRequests(auth -> auth.anyRequest().authenticated()) // http 통신에 대한 인가 정책을 설정하겠다. (모든 요청)
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/invalidSessionUrl", "expiredUrl").permitAll()
+                        .anyRequest().authenticated()) // http 통신에 대한 인가 정책을 설정하겠다. (모든 요청)
                 .formLogin(Customizer.withDefaults()) // 인증을 받지 못했을 경우에 formLogin 방식(default)으로 인증을 받는다.
-                ;
+                .sessionManagement(session -> session
+//                        .invalidSessionUrl("/invalidSessionUrl")
+                        .maximumSessions(1) // 동시 세션 제어를 하기 위해서는 필수. 기본은 무제한이어서 제어 안됨.
+                        .maxSessionsPreventsLogin(false) // false(기본): 인증 만료, true: 인증 차단
+                        .expiredUrl("/expiredUrl")
+                )
+        ;
         return http.build();
     }
 
