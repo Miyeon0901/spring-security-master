@@ -1,0 +1,25 @@
+###
+POST http://localhost:8080/login
+Content-Type: application/json
+
+{
+  "username": "user",
+  "password": "1111"
+}
+
+> {%
+    client.global.set("JSESSIONID", response.headers.valueOf("Set-Cookie").split(";")[0].split("=")[1])
+%}
+
+
+###뭔데
+GET http://localhost:8080/
+Accept: application/json
+#Cookie: JSESSIONID={{JSESSIONID}}
+
+### 이거 안됨....
+GET http://localhost:8080/home
+Accept: application/json
+
+
+

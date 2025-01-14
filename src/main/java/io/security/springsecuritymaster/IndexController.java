@@ -13,8 +13,8 @@ public class IndexController {
     }
 
     @GetMapping("/home")
-    public String home() {
-        return "home";
+    public Authentication home(Authentication authentication) {
+        return authentication;
     }
 
     @GetMapping("/loginPage")
