@@ -1,5 +1,7 @@
 package io.security.springsecuritymaster;
 
+import org.springframework.security.authentication.AuthenticationServiceException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -9,6 +11,9 @@ public class IndexController {
 
     @GetMapping("/")
     public Authentication index(Authentication authentication) {
+//        throw new RuntimeException("error");
+//        throw new AuthenticationServiceException("error");
+
         return authentication;
     }
 
