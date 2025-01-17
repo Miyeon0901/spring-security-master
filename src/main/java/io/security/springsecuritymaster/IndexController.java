@@ -44,4 +44,14 @@ public class IndexController {
         return token1;
     }
 
+    @PostMapping("/formCsrf")
+    public CsrfToken formCsrf(CsrfToken csrfToken) { // 자동적으로 현재 생성되어있는 csrf token이 반영이 됨. 스프링이 해줌. 내부적으로는 위 코드와 유사.
+        return csrfToken;
+    }
+
+    @PostMapping("/cookieCsrf")
+    public CsrfToken cookieCsrf(CsrfToken csrfToken) {
+        return csrfToken;
+    }
+
 }
