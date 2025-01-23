@@ -22,7 +22,8 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .authorizeHttpRequests(auth -> auth.anyRequest().authenticated()) // http 통신에 대한 인가 정책을 설정하겠다. (모든 요청)
+                .authorizeHttpRequests(authorize -> authorize
+                        .anyRequest().authenticated())
                 .formLogin(Customizer.withDefaults()) // 인증을 받지 못했을 경우에 formLogin 방식(default)으로 인증을 받는다.
                 ;
         return http.build();
@@ -30,10 +31,10 @@ public class SecurityConfig {
 
     @Bean
     public UserDetailsService userDetailsService() { // 설정 파일(yml)보다 우선시 됨.
-        UserDetails user = User.withUsername("user")
-                .password("{noop}1111")
-                .roles("USER").build();
-        return new InMemoryUserDetailsManager(user);
+        UserDetails user = User.withUsername("user").password("{noop}1111").roles("USER").build();
+        UserDetails manager = User.withUsername("manager").password("{noop}1111").roles("MANAGER").build();
+        UserDetails admin = User.withUsername("admin").password("{noop}1111").roles("ADMIN", "WRITE").build();
+        return new InMemoryUserDetailsManager(user, manager, admin);
 
     }
 }
