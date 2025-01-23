@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -19,13 +20,25 @@ import java.io.IOException;
 @EnableWebSecurity
 @Configuration
 public class SecurityConfig {
+
+    // SecurityFilterChain 여러개 - 다중설정보안
     @Bean
+    @Order(1)
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
+        http.securityMatchers(matcher -> matcher.requestMatchers("/**"))
                 .authorizeHttpRequests(authorize -> authorize
                         .anyRequest().authenticated())
                 .formLogin(Customizer.withDefaults()) // 인증을 받지 못했을 경우에 formLogin 방식(default)으로 인증을 받는다.
                 ;
+        return http.build();
+    }
+
+    @Bean
+    public SecurityFilterChain securityFilterChain2(HttpSecurity http) throws Exception {
+        http.securityMatchers(matchers -> matchers.requestMatchers("/api/**", "/oauth/**"))
+                .authorizeHttpRequests(authorize -> authorize
+                        .anyRequest().permitAll())
+        ;
         return http.build();
     }
 
