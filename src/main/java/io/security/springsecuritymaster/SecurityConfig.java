@@ -5,6 +5,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -23,6 +25,9 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers("/user").hasRole("USER")
+                        .requestMatchers("/db").hasRole("DB")
+                        .requestMatchers("/admin").hasRole("ADMIN")
                         .anyRequest().authenticated())
                 .formLogin(Customizer.withDefaults()) // 인증을 받지 못했을 경우에 formLogin 방식(default)으로 인증을 받는다.
                 ;
@@ -30,10 +35,19 @@ public class SecurityConfig {
     }
 
     @Bean
+    public RoleHierarchy roleHierarchy() {
+        RoleHierarchyImpl roleHierarchy = new RoleHierarchyImpl();
+        roleHierarchy.setHierarchy("ROLE_ADMIN > ROLE_DB\n" +
+                "ROLE_DB > ROLE_USER\n" +
+                "ROLE_USER > ROLE_ANONYMOUS");
+        return roleHierarchy;
+    }
+
+    @Bean
     public UserDetailsService userDetailsService() { // 설정 파일(yml)보다 우선시 됨.
         UserDetails user = User.withUsername("user").password("{noop}1111").roles("USER").build();
-        UserDetails manager = User.withUsername("manager").password("{noop}1111").roles("MANAGER").build();
-        UserDetails admin = User.withUsername("admin").password("{noop}1111").roles("ADMIN", "WRITE").build();
+        UserDetails manager = User.withUsername("db").password("{noop}1111").roles("DB").build();
+        UserDetails admin = User.withUsername("admin").password("{noop}1111").roles("ADMIN", "SECURE").build();
         return new InMemoryUserDetailsManager(user, manager, admin);
 
     }
