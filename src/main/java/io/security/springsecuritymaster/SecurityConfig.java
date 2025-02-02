@@ -32,8 +32,8 @@ public class SecurityConfig {
     @Bean
     public UserDetailsService userDetailsService() { // 설정 파일(yml)보다 우선시 됨.
         UserDetails user = User.withUsername("user").password("{noop}1111").roles("USER").build();
-        UserDetails manager = User.withUsername("manager").password("{noop}1111").roles("MANAGER").build();
-        UserDetails admin = User.withUsername("admin").password("{noop}1111").roles("ADMIN", "WRITE").build();
+        UserDetails manager = User.withUsername("db").password("{noop}1111").roles("DB").build();
+        UserDetails admin = User.withUsername("admin").password("{noop}1111").roles("ADMIN", "SECURE").build();
         return new InMemoryUserDetailsManager(user, manager, admin);
 
     }
