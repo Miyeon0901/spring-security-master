@@ -25,8 +25,9 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/user").hasRole("USER")
-                        .requestMatchers("/db").access(new WebExpressionAuthorizationManager("hasRole('DB'"))
-                        .requestMatchers("/admin").authenticated()
+                        .requestMatchers("/db").access(new WebExpressionAuthorizationManager("hasRole('DB')"))
+                        .requestMatchers("/admin").hasAuthority("ROLE_ADMIN")
+                        .requestMatchers("/secure").access(new CustomAuthorizationManager())
                         .anyRequest().authenticated())
                 .formLogin(Customizer.withDefaults()) // 인증을 받지 못했을 경우에 formLogin 방식(default)으로 인증을 받는다.
                 ;
